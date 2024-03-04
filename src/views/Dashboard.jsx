@@ -58,14 +58,29 @@ const Dashboard = () => {
     
             if (response.ok) {
                 const blob = await response.blob();
+            
+                // Extract filename from response headers
+                const contentDisposition = response.headers.get('content-disposition');
+                let filename = 'downloaded_file'; // Default filename if not found in headers
+                if (contentDisposition) {
+                    const matches = contentDisposition.match(/filename="(.+?)"/);
+                    if (matches) {
+                        filename = matches[1];
+                    }
+                }
+            
                 const url = window.URL.createObjectURL(blob);
                 const a = document.createElement('a');
                 a.href = url;
-                a.download = 'downloaded_file.txt'; // Change the filename as needed
+            
+                // Set the 'download' attribute to specify the filename
+                a.download = filename;
+            
                 document.body.appendChild(a);
                 a.click();
                 window.URL.revokeObjectURL(url);
                 toast.success(`Downloading ${procedure}ed file!`);
+            
             } else {
                 toast.error('Something wrong with your file');
             }
